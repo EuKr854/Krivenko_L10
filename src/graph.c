@@ -78,3 +78,79 @@ graph_error_t graph_add_vertex(
 
     return GRAPH_SUCCESS;
 }
+
+static int graph_has_edge(
+    const graph_t *graph,
+    size_t vertex1,
+    size_t vertex2
+)
+{
+    graph_node_t *current;
+
+    current = graph->adjacency_lists[vertex1];
+
+    while (current != NULL)
+    {
+        if (current->vertex == vertex2)
+        {
+            return 1;
+        }
+
+        current = current->next;
+    }
+
+    return 0;
+}
+
+graph_error_t graph_add_edge(
+    graph_t *graph,
+    size_t vertex1,
+    size_t vertex2
+)
+{
+    graph_node_t *node1;
+    graph_node_t *node2;
+
+    if (graph == NULL)
+    {
+        return GRAPH_NULL_POINTER;
+    }
+
+    if (vertex1 >= graph->vertex_count
+        || vertex2 >= graph->vertex_count)
+    {
+        return GRAPH_INVALID_VERTEX;
+    }
+
+    if (graph_has_edge(graph, vertex1, vertex2))
+    {
+        return GRAPH_EDGE_EXISTS;
+    }
+
+    node1 = malloc(sizeof(graph_node_t));
+
+    if (node1 == NULL)
+    {
+        return GRAPH_MEMORY_ERROR;
+    }
+
+    node2 = malloc(sizeof(graph_node_t));
+
+    if (node2 == NULL)
+    {
+        free(node1);
+        return GRAPH_MEMORY_ERROR;
+    }
+
+    node1->vertex = vertex2;
+    node1->next = graph->adjacency_lists[vertex1];
+
+    graph->adjacency_lists[vertex1] = node1;
+
+    node2->vertex = vertex1;
+    node2->next = graph->adjacency_lists[vertex2];
+
+    graph->adjacency_lists[vertex2] = node2;
+
+    return GRAPH_SUCCESS;
+}
