@@ -14,3 +14,13 @@ test_graph.exe:
 
 clean:
 	del /Q *.exe *.dll *.o 2>nul
+
+syntax:
+	gcc -Wall -Wextra -Wpedantic -fsyntax-only src/graph.c
+
+analyze:
+	gcc -Wall -Wextra -Wpedantic -fanalyzer -c src/graph.c
+
+sanitize:
+	gcc -Wall -Wextra -fsanitize=address,undefined -Iinclude src/graph.c tests/test_graph.c -o sanitize_test.exe
+	sanitize_test.exe
