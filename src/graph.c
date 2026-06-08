@@ -154,3 +154,98 @@ graph_error_t graph_add_edge(
 
     return GRAPH_SUCCESS;
 }
+
+graph_error_t graph_are_adjacent(
+    const graph_t *graph,
+    size_t vertex1,
+    size_t vertex2,
+    int *result
+)
+{
+    if (graph == NULL || result == NULL)
+    {
+        return GRAPH_NULL_POINTER;
+    }
+
+    if (vertex1 >= graph->vertex_count
+        || vertex2 >= graph->vertex_count)
+    {
+        return GRAPH_INVALID_VERTEX;
+    }
+
+    *result = graph_has_edge(graph, vertex1, vertex2);
+
+    return GRAPH_SUCCESS;
+}
+
+static graph_error_t remove_from_list(
+    graph_node_t **head,
+    size_t vertex
+)
+{
+    graph_node_t *current;
+    graph_node_t *previous;
+
+    current = *head;
+    previous = NULL;
+
+    while (current != NULL)
+    {
+        if (current->vertex == vertex)
+        {
+            if (previous == NULL)
+            {
+                *head = current->next;
+            }
+            else
+            {
+                previous->next = current->next;
+            }
+
+            free(current);
+            return GRAPH_SUCCESS;
+        }
+
+        previous = current;
+        current = current->next;
+    }
+
+    return GRAPH_EDGE_NOT_FOUND;
+}
+
+graph_error_t graph_remove_edge(
+    graph_t *graph,
+    size_t vertex1,
+    size_t vertex2
+)
+{
+    graph_error_t result;
+
+    if (graph == NULL)
+    {
+        return GRAPH_NULL_POINTER;
+    }
+
+    if (vertex1 >= graph->vertex_count
+        || vertex2 >= graph->vertex_count)
+    {
+        return GRAPH_INVALID_VERTEX;
+    }
+
+    result = remove_from_list(
+        &graph->adjacency_lists[vertex1],
+        vertex2
+    );
+
+    if (result != GRAPH_SUCCESS)
+    {
+        return result;
+    }
+
+    result = remove_from_list(
+        &graph->adjacency_lists[vertex2],
+        vertex1
+    );
+
+    return result;
+}
