@@ -2,8 +2,15 @@ CC = gcc
 
 CFLAGS = -Wall -Wextra -Iinclude
 
-all:
-	$(CC) $(CFLAGS) src/graph.c tests/test_graph.c -o test_graph.exe
+LIB_NAME = graph
+
+all: libgraph.dll test_graph.exe
+
+libgraph.dll:
+	$(CC) $(CFLAGS) -shared -o libgraph.dll src/graph.c
+
+test_graph.exe:
+	$(CC) $(CFLAGS) tests/test_graph.c -L. -lgraph -o test_graph.exe
 
 clean:
-	del /Q test_graph.exe 2>nul
+	del /Q *.exe *.dll *.o 2>nul

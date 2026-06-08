@@ -249,3 +249,149 @@ graph_error_t graph_remove_edge(
 
     return result;
 }
+
+static void dfs_recursive(
+    const graph_t *graph,
+    size_t vertex,
+    int *visited,
+    size_t *order,
+    size_t *count
+)
+{
+    graph_node_t *current;
+
+    visited[vertex] = 1;
+
+    order[*count] = vertex;
+    (*count)++;
+
+    current = graph->adjacency_lists[vertex];
+
+    while (current != NULL)
+    {
+        if (!visited[current->vertex])
+        {
+            dfs_recursive(
+                graph,
+                current->vertex,
+                visited,
+                order,
+                count
+            );
+        }
+
+        current = current->next;
+    }
+}
+
+graph_error_t graph_dfs(
+    const graph_t *graph,
+    size_t start_vertex,
+    size_t *order,
+    size_t *count
+)
+{
+    int *visited;
+
+    if (graph == NULL || order == NULL || count == NULL)
+    {
+        return GRAPH_NULL_POINTER;
+    }
+
+    if (start_vertex >= graph->vertex_count)
+    {
+        return GRAPH_INVALID_VERTEX;
+    }
+
+    visited = calloc(
+        graph->vertex_count,
+        sizeof(int)
+    );
+
+    if (visited == NULL)
+    {
+        return GRAPH_MEMORY_ERROR;
+    }
+
+    *count = 0;
+
+    dfs_recursive(
+        graph,
+        start_vertex,
+        visited,
+        order,
+        count
+    );
+
+    free(visited);
+
+    return GRAPH_SUCCESS;
+}
+
+graph_error_t graph_bfs(
+    const graph_t *graph,
+    size_t start_vertex,
+    size_t *order,
+    size_t *count
+)
+{
+    int *visited;
+    size_t *queue;
+    size_t front;
+    size_t back;
+    size_t vertex;
+    graph_node_t *current;
+
+    if (graph == NULL || order == NULL || count == NULL)
+    {
+        return GRAPH_NULL_POINTER;
+    }
+
+    if (start_vertex >= graph->vertex_count)
+    {
+        return GRAPH_INVALID_VERTEX;
+    }
+
+    visited = calloc(graph->vertex_count, sizeof(int));
+    queue = malloc(graph->vertex_count * sizeof(size_t));
+
+    if (visited == NULL || queue == NULL)
+    {
+        free(visited);
+        free(queue);
+        return GRAPH_MEMORY_ERROR;
+    }
+
+    front = 0;
+    back = 0;
+    *count = 0;
+
+    visited[start_vertex] = 1;
+    queue[back++] = start_vertex;
+
+    while (front < back)
+    {
+        vertex = queue[front++];
+
+        order[*count] = vertex;
+        (*count)++;
+
+        current = graph->adjacency_lists[vertex];
+
+        while (current != NULL)
+        {
+            if (!visited[current->vertex])
+            {
+                visited[current->vertex] = 1;
+                queue[back++] = current->vertex;
+            }
+
+            current = current->next;
+        }
+    }
+
+    free(visited);
+    free(queue);
+
+    return GRAPH_SUCCESS;
+}

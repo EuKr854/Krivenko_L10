@@ -53,4 +53,17 @@ graph_error_t graph_are_adjacent(
     int *result
 );
 
+graph_error_t graph_dfs(
+    const graph_t *graph,
+    size_t start_vertex,
+    size_t *order,
+    size_t *count
+);
+
+graph_error_t graph_bfs(
+    const graph_t *graph,
+    size_t start_vertex,
+    size_t *order,
+    size_t *count
+);
 #endif

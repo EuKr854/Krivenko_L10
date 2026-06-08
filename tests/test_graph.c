@@ -4,9 +4,15 @@
 int main(void)
 {
     graph_t graph;
+
     size_t v0;
     size_t v1;
+
     int adjacent;
+
+    size_t order[10];
+    size_t count;
+    size_t index;
 
     graph_init(&graph);
 
@@ -23,6 +29,38 @@ int main(void)
     );
 
     printf("Adjacent: %d\n", adjacent);
+
+    graph_dfs(
+        &graph,
+        0,
+        order,
+        &count
+    );
+
+    printf("DFS: ");
+
+    for (index = 0; index < count; index++)
+    {
+        printf("%zu ", order[index]);
+    }
+
+    printf("\n");
+
+    graph_bfs(
+        &graph,
+        0,
+        order,
+        &count
+    );
+
+    printf("BFS: ");
+
+    for (index = 0; index < count; index++)
+    {
+        printf("%zu ", order[index]);
+    }
+
+    printf("\n");
 
     graph_destroy(&graph);
 
